@@ -3,11 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+    <title>Authorization Code Received</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        .container { max-width: 600px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
+        h1 { color: #333; }
+        .code-display { background-color: #f4f4f4; border: 1px solid #ddd; padding: 10px; margin-top: 20px; word-wrap: break-word; text-align: left; }
+        .button-container { margin-top: 20px; }
+        #redirect-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
 
-    <p>Please wait while we redirect you to the application...</p>
+    <div class="container">
+        <h1>Authorization Complete! ✅</h1>
+        <p>The authorization code has been captured. Click the button below to continue to your local application.</p>
+
+        <div class="code-display">
+            <strong>Authorization Code:</strong>
+            <p id="authCode">Loading...</p>
+            <strong>State:</strong>
+            <p id="stateValue">Loading...</p>
+        </div>
+
+        <div class="button-container">
+            <button id="redirect-button" disabled>Connect to Local App</button>
+        </div>
+    </div>
 
     <script>
         // Get the URL from the browser
@@ -16,22 +46,32 @@
         const code = urlParams.get('code');
         const state = urlParams.get('state');
 
-        // Define your local Flask server URL
-        const localServerUrl = "http://localhost:5000/callback"; 
-
+        const codeElement = document.getElementById('authCode');
+        const stateElement = document.getElementById('stateValue');
+        const redirectButton = document.getElementById('redirect-button');
+        
         if (code && state) {
-            // Construct the new URL with the received code and state
-            const redirectUrl = `${localServerUrl}?code=${code}&state=${state}`;
+            // Display the code and state on the page
+            codeElement.textContent = code;
+            stateElement.textContent = state;
             
-            // Log the redirect for debugging
-            console.log("Redirecting to:", redirectUrl);
-
-            // Perform the redirect
-            window.location.replace(redirectUrl);
+            // Enable the button
+            redirectButton.disabled = false;
+            
+            // Add a click listener to the button
+            redirectButton.addEventListener('click', () => {
+                // Define your local Flask server URL
+                const localServerUrl = "http://localhost:5000/callback"; 
+                // Construct the new URL with the received code and state
+                const redirectUrl = `${localServerUrl}?code=${code}&state=${state}`;
+                
+                // Redirect the browser to your local server
+                window.location.replace(redirectUrl);
+            });
         } else {
-            // Handle cases where the code is not found
+            codeElement.textContent = "No authorization code found.";
+            stateElement.textContent = "No state found.";
             console.error("No authorization code or state found in the URL.");
-            document.body.innerHTML = '<h1>Error: Missing authorization code</h1>';
         }
     </script>
 
