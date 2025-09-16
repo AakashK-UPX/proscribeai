@@ -1,48 +1,25 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authorization Code Received</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
-        .container { max-width: 600px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
-        h1 { color: #333; }
-        .code-display { background-color: #f4f4f4; border: 1px solid #ddd; padding: 10px; margin-top: 20px; word-wrap: break-word; }
-    </style>
+  <title>Redirecting to Localhost...</title>
+  <script type="text/javascript">
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+
+    if (code && state) {
+      // Construct the new URL for your local Flask server
+      const localServerUrl = `http://localhost:5000/callback?code=${code}&state=${state}`;
+      
+      // Redirect the browser to your local server
+      window.location.replace(localServerUrl);
+    } else {
+      // Handle error or no parameters
+      document.body.innerHTML = '<h1>Error: Missing parameters</h1>';
+    }
+  </script>
 </head>
 <body>
-
-    <div class="container">
-        <h1>Authorization Complete! ✅</h1>
-        <p>The authorization code has been captured from the URL. You can copy it below to use in Postman.</p>
-        <div class="code-display">
-            <strong>Authorization Code:</strong>
-            <p id="authCode">Loading...</p>
-        </div>
-        <p>You can now perform the token exchange in Postman.</p>
-    </div>
-
-    <script>
-        // Get the URL from the browser
-        const urlParams = new URLSearchParams(window.location.search);
-        // Extract the 'code' parameter
-        const code = urlParams.get('code');
-        // Extract the 'state' parameter (optional but good practice)
-        const state = urlParams.get('state');
-
-        // Display the code on the page
-        const codeElement = document.getElementById('authCode');
-        if (code) {
-            codeElement.textContent = code;
-            console.log('Authorization Code:', code);
-            console.log('State:', state);
-        } else {
-            codeElement.textContent = "No authorization code found.";
-            console.log('No authorization code found in the URL. Check for errors.');
-        }
-    </script>
-
+  <p>If you are not redirected, please check your local server.</p>
 </body>
 </html>
