@@ -1,25 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Redirecting to Localhost...</title>
-  <script type="text/javascript">
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const state = params.get('state');
-
-    if (code && state) {
-      // Construct the new URL for your local Flask server
-      const localServerUrl = `http://localhost:5000/callback?code=${code}&state=${state}`;
-      
-      // Redirect the browser to your local server
-      window.location.replace(localServerUrl);
-    } else {
-      // Handle error or no parameters
-      document.body.innerHTML = '<h1>Error: Missing parameters</h1>';
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
 </head>
 <body>
-  <p>If you are not redirected, please check your local server.</p>
+
+    <p>Please wait while we redirect you to the application...</p>
+
+    <script>
+        // Get the URL from the browser
+        const urlParams = new URLSearchParams(window.location.search);
+        // Extract the 'code' and 'state' parameters
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+
+        // Define your local Flask server URL
+        const localServerUrl = "http://localhost:5000/callback"; 
+
+        if (code && state) {
+            // Construct the new URL with the received code and state
+            const redirectUrl = `${localServerUrl}?code=${code}&state=${state}`;
+            
+            // Log the redirect for debugging
+            console.log("Redirecting to:", redirectUrl);
+
+            // Perform the redirect
+            window.location.replace(redirectUrl);
+        } else {
+            // Handle cases where the code is not found
+            console.error("No authorization code or state found in the URL.");
+            document.body.innerHTML = '<h1>Error: Missing authorization code</h1>';
+        }
+    </script>
+
 </body>
 </html>
