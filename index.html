@@ -61,7 +61,7 @@
             // Add a click listener to the button
             redirectButton.addEventListener('click', () => {
                 // Define your local Flask server URL
-                const localServerUrl = "http://localhost:5000/callback"; 
+                const localServerUrl = "http://localhost:5002/callback"; 
                 // Construct the new URL with the received code and state
                 const redirectUrl = `${localServerUrl}?code=${code}&state=${state}`;
                 
