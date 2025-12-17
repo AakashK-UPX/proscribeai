@@ -23,20 +23,10 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>Authorization-Complete!</h1>
-        <p>The authorization code has been captured. Click the button below to continue to your local application.</p>
-
-        <div class="code-display">
-            <strong>Authorization Code:</strong>
-            <p id="authCode">Loading...</p>
-            <strong>State:</strong>
-            <p id="stateValue">Loading...</p>
-        </div>
-
-        <div class="button-container">
-            <button id="redirect-button" disabled>Connect to Local App</button>
-        </div>
+    <div class="button-container">
+    <p id="status-message" style="font-weight: bold; color: #007bff;">
+        Syncing with your application...
+    </p>
     </div>
 
     <script>
