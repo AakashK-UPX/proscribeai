@@ -40,38 +40,40 @@
     </div>
 
     <script>
-        // Get the URL from the browser
-        const urlParams = new URLSearchParams(window.location.search);
-        // Extract the 'code' and 'state' parameters
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
 
-        const codeElement = document.getElementById('authCode');
-        const stateElement = document.getElementById('stateValue');
-        const redirectButton = document.getElementById('redirect-button');
+    const codeElement = document.getElementById('authCode');
+    const stateElement = document.getElementById('stateValue');
+    const statusMessage = document.getElementById('status-message');
+    
+    // Configuration
+    const LOCAL_SERVER_URL = "http://localhost:5002/callback";
+    const REDIRECT_DELAY_MS = 1500; // 1.5 seconds for a quick handoff
+
+    if (code && state) {
+        codeElement.textContent = code;
+        stateElement.textContent = state;
         
-        if (code && state) {
-            // Display the code and state on the page
-            codeElement.textContent = code;
-            stateElement.textContent = state;
+        // Final handoff to Localhost
+        setTimeout(() => {
+            statusMessage.textContent = "Redirecting now...";
             
-            // Enable the button
-            redirectButton.disabled = false;
+            // Encode parameters to handle special characters safely
+            const queryParams = new URLSearchParams({ code, state }).toString();
+            const redirectUrl = `${LOCAL_SERVER_URL}?${queryParams}`;
             
-            // Add a click listener to the button
-            redirectButton.addEventListener('click', () => {
-                // Define your local Flask server URL
-                const localServerUrl = "http://localhost:5002/callback"; 
-                // Construct the new URL with the received code and state
-                const redirectUrl = `${localServerUrl}?code=${code}&state=${state}`;
-                
-                // Redirect the browser to your local server
-                window.location.replace(redirectUrl);
-            });
-        } else {
-            codeElement.textContent = "No authorization code found.";
-            stateElement.textContent = "No state found.";
-            console.error("No authorization code or state found in the URL.");
+            // window.location.replace is used so this page 
+            // doesn't stay in the browser "Back" history.
+            window.location.replace(redirectUrl);
+        }, REDIRECT_DELAY_MS);
+
+    } else {
+        statusMessage.textContent = "Error: Missing authorization parameters.";
+        statusMessage.style.color = "#dc3545";
+        codeElement.textContent = "Not found";
+        stateElement.textContent = "Not found";
         }
     </script>
 
