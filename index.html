@@ -18,52 +18,79 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            transition: background-color 0.3s;
         }
+        #redirect-button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .timer-msg { margin-top: 15px; font-weight: bold; color: #007bff; }
     </style>
 </head>
 <body>
 
-    <div class="button-container">
-    <p id="status-message" style="font-weight: bold; color: #007bff;">
-        Syncing with your application...
-    </p>
+    <div class="container">
+        <h1>Authorization-Complete!</h1>
+        <p id="message">Capturing credentials and preparing relay...</p>
+
+        <div class="code-display">
+            <strong>Authorization Code:</strong>
+            <p id="authCode">Loading...</p>
+            <strong>State:</strong>
+            <p id="stateValue">Loading...</p>
+        </div>
+
+        <div class="button-container">
+            <button id="redirect-button" disabled>Relaying to Local App...</button>
+            <p id="timer-display" class="timer-msg">Starting redirect in 3s...</p>
+        </div>
     </div>
 
     <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
+        // 1. Extract parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
 
-    const codeElement = document.getElementById('authCode');
-    const stateElement = document.getElementById('stateValue');
-    const statusMessage = document.getElementById('status-message');
-    
-    // Configuration
-    const LOCAL_SERVER_URL = "http://localhost:5002/callback";
-    const REDIRECT_DELAY_MS = 1500; // 1.5 seconds for a quick handoff
+        const codeElement = document.getElementById('authCode');
+        const stateElement = document.getElementById('stateValue');
+        const redirectButton = document.getElementById('redirect-button');
+        const timerDisplay = document.getElementById('timer-display');
+        const message = document.getElementById('message');
 
-    if (code && state) {
-        codeElement.textContent = code;
-        stateElement.textContent = state;
-        
-        // Final handoff to Localhost
-        setTimeout(() => {
-            statusMessage.textContent = "Redirecting now...";
-            
-            // Encode parameters to handle special characters safely
-            const queryParams = new URLSearchParams({ code, state }).toString();
-            const redirectUrl = `${LOCAL_SERVER_URL}?${queryParams}`;
-            
-            // window.location.replace is used so this page 
-            // doesn't stay in the browser "Back" history.
-            window.location.replace(redirectUrl);
-        }, REDIRECT_DELAY_MS);
+        // 2. Relay Configuration
+        const LOCAL_SERVER_URL = "http://localhost:5002/callback";
+        let countdown = 3;
 
-    } else {
-        statusMessage.textContent = "Error: Missing authorization parameters.";
-        statusMessage.style.color = "#dc3545";
-        codeElement.textContent = "Not found";
-        stateElement.textContent = "Not found";
+        if (code && state) {
+            // Display values so user sees what is being relayed
+            codeElement.textContent = code;
+            stateElement.textContent = state;
+
+            // 3. Countdown Logic
+            const timerInterval = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    timerDisplay.textContent = `Starting redirect in ${countdown}s...`;
+                } else {
+                    timerDisplay.textContent = "Redirecting now...";
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+
+            // 4. Automated Redirect (The "Relay")
+            setTimeout(() => {
+                // Construct the relay URL
+                // encodeURIComponent ensures special characters in the code don't break the URL
+                const relayUrl = `${LOCAL_SERVER_URL}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+                
+                // Redirect the browser to your local Flask app
+                window.location.replace(relayUrl);
+            }, 3000);
+
+        } else {
+            message.textContent = "Error: No authorization data found.";
+            message.style.color = "red";
+            timerDisplay.textContent = "Automatic relay cancelled.";
+            codeElement.textContent = "Not found.";
+            stateElement.textContent = "Not found.";
         }
     </script>
 
